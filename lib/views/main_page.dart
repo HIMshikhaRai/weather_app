@@ -22,6 +22,13 @@ class _MainPageState extends State<MainPage> {
   final _formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    Provider.of<WeatherViewModel>(context, listen: false).init();
+    Provider.of<WeatherViewModel>(context, listen: false).getDefaultWeather();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
@@ -109,6 +116,8 @@ class _MainPageState extends State<MainPage> {
                       const SizedBox(
                         height: 16,
                       ),
+                      if (provider.status != Status.loading && provider.weatherResponse == null)
+                        _getDefaultWeather(provider),
                       _getResult(provider),
                     ],
                   ),
@@ -152,6 +161,122 @@ class _MainPageState extends State<MainPage> {
       ),
       backgroundColor: type == "info" ? Colors.green : Colors.red,
     ));
+  }
+
+  Widget _getDefaultWeather(WeatherViewModel provider) {
+    if (provider.weather != null) {
+      return Column(
+        children: [
+          Container(
+            color: const Color(0xffdcd8f5),
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: TextSlideAnimation(
+              textWidget: Text(
+                "Default",
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Theme.of(context).primaryColor, fontSize: 28),
+              ),
+            ),
+          ),
+          Container(
+            color: const Color(0xffdcd8f5),
+            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Stack(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(28),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(32),
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xff5927e5).withOpacity(0.60),
+                              const Color(0xff362b48)
+                            ],
+                            begin: Alignment.bottomLeft,
+                            end: Alignment.topRight,
+                          )),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                width: 128,
+                                height: 80,
+                              ),
+                              TextSlideAnimation(
+                                textWidget: Text(
+                                  "${CustomDateUtils().getTempInCel(provider.weather?.main?.temp ?? 32)} °C",
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextSlideAnimation(
+                                textWidget: Text(
+                                  "${provider.weather?.weather?.first.main}",
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium,
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  TextSlideAnimation(
+                                    textWidget: Text(
+                                      '${provider.weather?.name}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineLarge
+                                          ?.copyWith(color: Colors.white),
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  TextSlideAnimation(
+                                    textWidget: Text(
+                                      today,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineLarge
+                                          ?.copyWith(color: Colors.white),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      top: -30,
+                      left: 30,
+                      child: Image.asset(
+                        SuitableIcon().getIcon(
+                            provider.weather?.weather?.first.description ??
+                                Description.clearSky),
+                        height: 128,
+                        width: 128,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+    return Container();
   }
 
   Widget _getResult(WeatherViewModel provider) {

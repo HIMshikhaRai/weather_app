@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:weather_report/api/result.dart';
+import 'package:weather_report/models/weather.dart';
 import 'package:weather_report/models/weather_response.dart';
 import 'package:weather_report/repositories/weather_repository.dart';
 import 'package:weather_report/utils/custom_date_utils.dart';
@@ -10,6 +11,7 @@ class WeatherViewModel extends ChangeNotifier {
 
   final WeatherRepository _weatherRepository = WeatherRepository();
   WeatherResponse? _weatherResponse;
+  Weather? _weather;
   DataError? _dataError;
   List<ListElement> todayForecast = [];
   List<ListElement> _tomorrowForecast = [],
@@ -17,6 +19,10 @@ class WeatherViewModel extends ChangeNotifier {
       _fourthForecast = [],
       _fifthForecast = [];
   Map<String, List<ListElement>>? allWeatherForecast;
+
+  init() {
+    _status = Status.loading;
+  }
 
   Future<void> getWeather(String city) async {
     _weatherResponse = null;
@@ -49,6 +55,24 @@ class WeatherViewModel extends ChangeNotifier {
 
   set weatherResponse(WeatherResponse? value) {
     _weatherResponse = value;
+  }
+
+  Future<void> getDefaultWeather() async {
+    if (status != Status.loading) status = Status.loading;
+    var result = await _weatherRepository.getDefaultWeather();
+    if (result.isSuccess()) {
+      _weather = result.getValue();
+      status = Status.success;
+    } else {
+      _dataError = result.getError();
+      status = Status.error;
+    }
+  }
+
+  Weather? get weather => _weather;
+
+  set weather(Weather? value) {
+    _weather = value;
   }
 
   void _calculateWeatherForecastDetail() {

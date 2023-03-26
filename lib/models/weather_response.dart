@@ -127,7 +127,7 @@ class ListElement {
 
   int? dt;
   MainClass? main;
-  List<Weather>? weather;
+  List<WeatherInfo>? weather;
   Clouds? clouds;
   Wind? wind;
   int? visibility;
@@ -140,8 +140,8 @@ class ListElement {
         main: json["main"] == null ? null : MainClass.fromJson(json["main"]),
         weather: json["weather"] == null
             ? []
-            : List<Weather>.from(
-                json["weather"]!.map((x) => Weather.fromJson(x))),
+            : List<WeatherInfo>.from(
+                json["weather"]!.map((x) => WeatherInfo.fromJson(x))),
         clouds: json["clouds"] == null ? null : Clouds.fromJson(json["clouds"]),
         wind: json["wind"] == null ? null : Wind.fromJson(json["wind"]),
         visibility: json["visibility"],
@@ -249,8 +249,8 @@ enum Pod { N, D }
 
 final podValues = EnumValues({"d": Pod.D, "n": Pod.N});
 
-class Weather {
-  Weather({
+class WeatherInfo {
+  WeatherInfo({
     this.id,
     this.main,
     this.description,
@@ -262,7 +262,7 @@ class Weather {
   Description? description;
   String? icon;
 
-  factory Weather.fromJson(Map<String, dynamic> json) => Weather(
+  factory WeatherInfo.fromJson(Map<String, dynamic> json) => WeatherInfo(
         id: json["id"],
         main: json["main"],
         description: descriptionValues.map[json["description"]],
